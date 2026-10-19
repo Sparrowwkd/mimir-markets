@@ -1,0 +1,27 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "feat/issue-353-feat-agents-report-trader-cycle-results-through",
+    "feat/issue-418-feat-devx-add-a-reviewed-postgres-adapter-for",
+    "feat/issue-429-feat-ui-render-a-claim-activity-timeline-from",
+    "fix/issue-419-refactor-api-split-lib-db-ts-into-domain",
+    "main",
+    "origin"
+  ],
+  "parent": {
+    "feat/issue-353-feat-agents-report-trader-cycle-results-through": "main",
+    "feat/issue-418-feat-devx-add-a-reviewed-postgres-adapter-for": "main",
+    "feat/issue-429-feat-ui-render-a-claim-activity-timeline-from": "main",
+    "fix/issue-419-refactor-api-split-lib-db-ts-into-domain": "main",
+    "main": null,
+    "origin": "main"
+  },
+  "order": [
+    "main",
+    "feat/issue-353-feat-agents-report-trader-cycle-results-through",
+    "feat/issue-418-feat-devx-add-a-reviewed-postgres-adapter-for",
+    "feat/issue-429-feat-ui-render-a-claim-activity-timeline-from",
+    "fix/issue-419-refactor-api-split-lib-db-ts-into-domain",
+    "origin"
+  ]
+}
