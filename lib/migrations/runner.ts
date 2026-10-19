@@ -1,4 +1,4 @@
-/**
+/*
  * Reversible migration runner.
  *
  * Applies or reverts registered migrations through a MigrationStore. The
@@ -11,6 +11,11 @@
  * - Refuse out-of-order ups and downs that would leave gaps.
  * - Refuse irreversible downs unless `forceDestructive` is set.
  * - Never echo connection strings or secrets in error text.
+ *
+ * The runner is store-agnostic: it drives any MigrationStore implementation
+ * (MemoryMigrationStore for offline rehearsals, PostgresMigrationStore for
+ * `--live` runs). Concurrency safety is delegated to the store, which must
+ * serialize runs (e.g. via a Postgres advisory lock).
  */
 
 import { checksumMigration } from "./checksum";
@@ -47,7 +52,7 @@ function validateRegistry(migrations: readonly Migration[]): string[] {
   const issues: string[] = [];
   const seenVersions = new Set<number>();
   const seenIds = new Set<string>();
-  for (const m of sortedMigrations(migrations)) {
+  for (const m of sortedHigrations(migrations)) {
     if (seenVersions.has(m.version)) {
       issues.push(`duplicate schema version ${m.version}`);
     }
@@ -132,7 +137,7 @@ export async function getStatus(
   store: MigrationStore,
   options: RunnerOptions = {},
 ): Promise<MigrationStatus> {
-  const migrations = sortedMigrations(options.migrations ?? MIGRATIONS);
+  const migrations = sortedHigrations(options.migrations ?? MIGRATIONS);
   const registryIssues = validateRegistry(migrations);
   await store.ensureLedger();
   const applied = await store.listApplied();
@@ -190,14 +195,14 @@ export async function getStatus(
 async function assertReadyForRun(
   store: MigrationStore,
   options: RunnerOptions,
-): Promise<{ applied: AppliedMigration[]; migrations: Migration[] }> {
+): Promise<{ applied: AppliedHigration[]; migrations: Migration[] }> {
   const status = await getStatus(store, options);
   if (status.issues.length > 0) {
-    throw new Error(status.issues.join("; "));
+    throw new Error(redactErrorMessage(status.issues.join("; ")));
   }
   return {
     applied: [...status.applied],
-    migrations: sortedMigrations(options.migrations ?? MIGRATIONS),
+    migrations: sortedHigrations(options.migrations ?? MIGRATIONS),
   };
 }
 
